@@ -1,0 +1,280 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <body>
+
+        <ui:composition template="./../templates/template.xhtml">
+
+            <ui:define name="content">
+
+                <div id="tooplate_main">
+                    <p:growl id="grwMensajePaciente" showDetail="true" widgetVar="mensajePaciente"/>
+                    <p:panel id="pnlPaciente" rendered="#{loginFormBean.verificarSesion()}">
+
+                        <h:form id="frmPaciente" enctype="multipart/form-data">
+                            <p:dataTable id="tblPaciente"
+                                         value="#{pacienteFormBean.obtenerPacientes()}"
+                                         var="pa" rows="3"
+                                         paginator="true" filteredValue="#{pacienteFormBean.pacienteFiltrados}">
+
+                                <p:column headerText="FOTO">
+                                    <p:panel rendered="#{pa.conFoto}">
+                                        <p:graphicImage width="50" height="80" cache="false"
+                                                        value="#{pacienteFormBean.archivoFoto}"
+                                                        rendered="#{pa.conFoto}">
+                                            <f:param name="numHC" value="#{pa.numHC}"/>
+                                        </p:graphicImage>
+                                    </p:panel>
+                                </p:column>
+                                <p:column headerText="HC" width="9%">
+                                    <p:outputLabel value="#{pa.numHC}"/>                                                                       
+                                </p:column>
+                                <p:column headerText="NOMBRE">
+                                    <p:outputLabel value="#{pa.nombre}"/>                                                                       
+                                </p:column>
+                                <p:column headerText="ESPECIE">
+                                    <p:outputLabel value="#{pa.especie}"/>                                                                       
+                                </p:column>
+                                <p:column headerText="SEXO">
+                                    <p:outputLabel value="#{pa.sexo}"/>                                                                       
+                                </p:column>
+                                <p:column headerText="PROPIETARIO" width="16%">
+                                    <p:outputLabel value="#{pa.propietario.apellido} #{pa.propietario.nombre}"/>                                                                       
+                                </p:column>
+                                <p:column headerText="FEC NAC">
+                                    <p:outputLabel value="#{pa.propietario.fechaNacimiento}">
+                                        <f:convertDateTime pattern="dd-MM-yyyy"/>
+                                    </p:outputLabel>                                                                       
+                                </p:column>
+                                <p:column headerText="ACCION" style="text-align: center">
+                                    <p:commandButton oncomplete="PF('wvDialogPacienteModificar').show();" 
+                                                     icon="ui-icon-pencil" 
+                                                     update=":frmModalModificar:dialogPacienteModificar">
+                                        <f:setPropertyActionListener target="#{pacienteFormBean.pacienteBean.paciente}" 
+                                                                     value="#{pa}" />
+                                    </p:commandButton>
+
+                                </p:column>
+                            </p:dataTable>
+                            <br/>
+                            <p:commandButton value="Agregar" 
+                                             actionListener="#{pacienteFormBean.reiniciarPaciente()}" 
+                                             oncomplete="PF('wvDialogPacienteAlta').show()" 
+                                             update=":frmModalAgregar:dialogPacienteAlta"/>
+                        </h:form>
+
+                        <h:form id="frmModalAgregar" enctype="multipart/form-data">
+                            <p:dialog id="dialogPacienteAlta" 
+                                      header="Alta de un Paciente"
+                                      widgetVar="wvDialogPacienteAlta" 
+                                      draggable="false" closable="true" modal="true">
+                                <h:panelGrid columns="3">
+                                    <p:outputLabel for="numHC" value="Numero HistClinica"/>
+                                    <p:inputText type="text" id="numHC" required="true"
+                                                 value="#{pacienteFormBean.pacienteBean.paciente.numHC}"/>
+                                    <p:message for="numHC"/>
+
+                                    <p:outputLabel for="nombre" value="Nombre"/>
+                                    <p:inputText type="text" id="nombre" required="true"
+                                                 value="#{pacienteFormBean.pacienteBean.paciente.nombre}"/>
+                                    <p:message for="nombre"/>
+
+                                    <p:outputLabel for="propietario" value="Propietario"/>
+                                    <p:selectOneMenu id="propietario" converter="propietarioConverter"
+                                                     value="#{pacienteFormBean.pacienteBean.paciente.propietario}">
+                                        <f:selectItem itemLabel="Seleccione Propietario" itemValue=""/>
+                                        <f:selectItems value="#{propietarioFormBean.obtenerPropietario()}" 
+                                                       var="prop" itemLabel="#{prop.apellido} #{prop.nombre}" itemValue="#{prop}"/>
+                                    </p:selectOneMenu>
+                                    <p:message for="propietario"/>
+
+                                    <p:outputLabel for="fecha" value="Fecha de Naciemiento"/>
+                                    <p:calendar id="fecha" pattern="dd-MM-yyyy" locale="es"
+                                                required="true" mask="true" maxdate="#{pacienteFormBean.fechaActual}"
+                                                value="#{pacienteFormBean.pacienteBean.paciente.fechaNacimiento}">
+                                        <f:convertDateTime pattern="dd-MM-yyyy"/>
+                                    </p:calendar>
+                                    <p:message for="fecha"/>
+
+                                    <p:outputLabel for="especie" value="Especie"/>
+                                    <p:selectOneMenu id="especie" required="true"
+                                                     value="#{pacienteFormBean.pacienteBean.paciente.especie}">
+                                        <f:selectItem itemLabel="Seleccione Especie" itemValue=""/>
+                                        <f:selectItem itemLabel="Canino" itemValue="Canino"/>
+                                        <f:selectItem itemLabel="Felino" itemValue="Felino"/>
+                                    </p:selectOneMenu>
+                                    <p:message for="especie"/>
+
+                                    <p:outputLabel for="sexo" value="Sexo"/>
+                                    <p:selectOneRadio id="sexo" required="true"
+                                                      value="#{pacienteFormBean.pacienteBean.paciente.sexo}">
+                                        <f:selectItem itemLabel="Hembra" itemValue="H"/>
+                                        <f:selectItem itemLabel="Macho" itemValue="M"/>
+                                    </p:selectOneRadio>
+                                    <p:message for="sexo"/>
+
+                                    <p:outputLabel for="foto" value="Cargar Foto"/>
+                                    <p:fileUpload id="foto" mode="simple"
+                                                  value="#{pacienteFormBean.archivo}"/>
+                                    <p:message for="foto"/>
+
+                                    <p:panel rendered="#{pacienteFormBean.pacienteBean.paciente.conFoto}">
+                                        #{pacienteFormBean.pacienteBean.paciente.foto}
+                                        <p:graphicImage width="50"  height="80" cache="false"
+                                                        value="#{pacienteFormBean.pacienteBean.paciente.foto}"
+                                                        rendered="#{paciente.conFoto}">
+                                            <f:param name="id" 
+                                                     value="#{pacienteFormBean.pacienteBean.paciente.numHC}"/>
+                                        </p:graphicImage>
+                                    </p:panel>         
+
+                                    <p:commandButton value="Agregar"
+                                                     update=":frmPaciente"
+                                                     oncomplete="PF('confirmaAltaPaciente').show()">
+                                    </p:commandButton>
+
+                                </h:panelGrid>
+                            </p:dialog>
+
+                            <p:confirmDialog id="dlgConfirmaAltaPaciente" 
+                                             header="CONFIRMACION DE OPERACION" 
+                                             message="¿Confirma Alta de Paciente?"
+                                             severity="alert" widgetVar="confirmaAltaPaciente">
+
+                                <p:commandButton value="SI" update=":frmPaciente" ajax="false"
+                                                 styleClass="ui-confirmdialog-yes" icon="ui-icon-check"
+                                                 actionListener="#{pacienteFormBean.agregarPaciente()}" 
+                                                 oncomplete="PF('confirmaAltaPaciente').hide();PF('altaPaciente').hide()"
+                                                 />
+
+                                <p:commandButton value="NO"
+                                                 styleClass="ui-confirmdialog-no" icon="ui-icon-close"
+                                                 oncomplete="PF('confirmaAltaPaciente').hide()"/>
+                            </p:confirmDialog>
+                        </h:form>                
+
+
+
+                        <h:form id="frmModalModificar"  enctype="multipart/form-data">
+                            <p:dialog id="dialogPacienteModificar" 
+                                      widgetVar="wvDialogPacienteModificar" 
+                                      header="Modificar Paciente" 
+                                      draggable="false" closable="true" modal="true">
+                                <h:panelGrid columns="3">
+                                    <p:outputLabel for="numHC" value="Numero HistClinica"/>
+                                    <p:inputText type="text" id="numHC" disabled="true"
+                                                 value="#{pacienteFormBean.pacienteBean.paciente.numHC}"/>
+                                    <p:message for="numHC"/>
+
+                                    <p:outputLabel for="nombre" value="Nombre"/>
+                                    <p:inputText type="text" id="nombre"
+                                                 value="#{pacienteFormBean.pacienteBean.paciente.nombre}"/>
+                                    <p:message for="nombre"/>
+
+                                    <p:outputLabel for="propietario" value="Propietario"/>
+                                    <p:selectOneMenu id="propietario" converter="propietarioConverter"
+                                                     value="#{pacienteFormBean.pacienteBean.paciente.propietario}">
+                                        <f:selectItem itemLabel="Seleccione Propietario" itemValue=""/>
+                                        <f:selectItems value="#{propietarioFormBean.obtenerPropietario()}" 
+                                                       var="prop" itemLabel="#{prop.apellido} #{prop.nombre}" itemValue="#{prop}"/>
+                                    </p:selectOneMenu>
+                                    <p:message for="propietario"/>                                    
+
+                                    <p:outputLabel for="fecha" value="Fecha de Naciemiento"/>
+                                    <p:calendar id="fecha" pattern="dd-MM-yyyy" locale="es"
+                                                required="true" mask="true" maxdate="#{pacienteFormBean.fechaActual}"
+                                                value="#{pacienteFormBean.pacienteBean.paciente.fechaNacimiento}">
+                                        <f:convertDateTime pattern="dd-MM-yyyy"/>
+                                    </p:calendar>
+                                    <p:message for="fecha"/>
+
+                                    <p:outputLabel for="especie" value="Especie"/>
+                                    <p:selectOneMenu id="especie" required="true"
+                                                     value="#{pacienteFormBean.pacienteBean.paciente.especie}">
+                                        <f:selectItem itemLabel="Seleccione Especie" itemValue=""/>
+                                        <f:selectItem itemLabel="Canino" itemValue="Canino"/>
+                                        <f:selectItem itemLabel="Felino" itemValue="Felino"/>
+                                    </p:selectOneMenu>
+                                    <p:message for="especie"/>
+
+                                    <p:outputLabel for="sexo" value="Sexo"/>
+                                    <p:selectOneRadio id="sexo" required="true"
+                                                      value="#{pacienteFormBean.pacienteBean.paciente.sexo}">
+                                        <f:selectItem itemLabel="Hembra" itemValue="H"/>
+                                        <f:selectItem itemLabel="Macho" itemValue="M"/>
+                                    </p:selectOneRadio>
+                                    <p:message for="sexo"/>
+
+                                    <p:panel>
+                                        <p:graphicImage width="80" height="80" cache="false"
+                                                        value="#{pacienteFormBean.archivoFotoModif}" 
+                                                        rendered="#{pacienteFormBean.pacienteBean.paciente.conFoto}">
+                                        </p:graphicImage>
+                                    </p:panel>
+                                    <p:fileUpload id="foto" mode="simple"
+                                                  value="#{pacienteFormBean.archivo}">
+
+                                    </p:fileUpload>
+                                    <h:panelGroup/>
+                                    <h:panelGroup/>                                    
+
+                                    <p:commandButton id="modificar" value="Actualizar datos"
+                                                     oncomplete="PF('confirmaModificarPaciente').show()" 
+                                                     update=":frmPaciente">
+
+                                    </p:commandButton>
+
+                                    <p:commandButton id="eliminar" value="Eliminar"
+                                                     oncomplete="PF('confirmaEliminarPaciente').show()"
+                                                     update=":grwMensajePaciente"/>
+
+                                </h:panelGrid>
+                            </p:dialog>
+
+                            <p:confirmDialog id="dlgConfirmaModificarPaciente" 
+                                             header="CONFIRMACION DE OPERACION" 
+                                             message="¿Confirma Modificacion de Paciente?"
+                                             severity="alert" widgetVar="confirmaModificarPaciente">
+
+                                <p:commandButton value="SI" update=":frmPaciente" ajax="false"
+                                                 styleClass="ui-confirmdialog-yes" icon="ui-icon-check"
+                                                 actionListener="#{pacienteFormBean.modificarPaciente()}" 
+                                                 oncomplete="PF('confirmaModificarPaciente').hide();PF('altaPaciente').hide()"
+                                                 />
+
+                                <p:commandButton value="NO"
+                                                 styleClass="ui-confirmdialog-no" icon="ui-icon-close"
+                                                 oncomplete="PF('confirmaModificarPaciente').hide()"/>
+                            </p:confirmDialog>
+
+                            <p:confirmDialog id="dlgConfirmaEliminarPaciente" 
+                                             header="CONFIRMACION DE OPERACION" 
+                                             message="¿Confirma la eliminacion del Paciente?"
+                                             severity="alert" widgetVar="confirmaEliminarPaciente">
+
+                                <p:commandButton value="SI" update=":frmPaciente" ajax="false"
+                                                 styleClass="ui-confirmdialog-yes" icon="ui-icon-check"
+                                                 actionListener="#{pacienteFormBean.eliminarPaciente()}" 
+                                                 oncomplete="PF('confirmaEliminarPaciente').hide();PF('wvDialogPacienteModificar').hide()"/>
+
+                                <p:commandButton value="NO"
+                                                 styleClass="ui-confirmdialog-no" icon="ui-icon-close"
+                                                 oncomplete="PF('confirmaEliminarPaciente').hide()"/>
+                            </p:confirmDialog>
+
+                        </h:form>                                
+
+                    </p:panel>
+                </div>
+
+            </ui:define>
+
+        </ui:composition>
+
+    </body>
+</html>

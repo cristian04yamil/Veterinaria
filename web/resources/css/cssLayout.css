@@ -1,0 +1,58 @@
+#bottom{
+    background-color: honeydew;
+    margin: 10px 0px 0px 0px;
+    padding: 5px;
+    position: relative;
+}
+
+#contenedor{
+    box-shadow: 0px 2px 5px rgba(0,0,0,0.7);
+    margin: 0 auto;
+    padding: 2px;
+    text-align: left;
+    width: 960px;
+}
+
+#top {
+    background-color: #036fab;
+    color: white;
+    padding: 0px;
+    position: relative;
+}
+
+#titulo{
+    float: left;
+    width: 960px;
+    margin-top: 3%;
+    color: #ff9041;
+}
+
+#tooplate_header{
+    background: url(../images/tooplate_header1.jpg) no-repeat;
+    height: 111px;
+    margin: 0 auto;
+    padding: 0 40px;
+}
+
+#tooplate_middle{
+    background: url(../images/tooplate_middle.jpg) no-repeat;
+    clear: both;
+    height: 30px;
+    margin: 0 auto;
+    padding: 20px 40px;
+}
+
+#tooplate_main{
+    background: url(../images/tooplate_main.jpg) no-repeat;
+    clear: both;
+    height: 330px;
+    margin: 0 auto;
+    padding: 10px 40px 0;
+}
+
+.center_content {
+    height: 462px;
+    padding: 0px;
+}
+
+

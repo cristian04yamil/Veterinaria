@@ -1,0 +1,192 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+      
+    <body>
+
+        <ui:composition template="./../templates/template.xhtml">
+
+            <ui:define name="content">
+                <div id="tooplate_main">
+                    <p:growl id="grwMensajePropietarios" showDetail="true" widgetVar="mensajesPropietarios"/>
+                    
+                    <p:panel id="pnlPropietario" rendered="#{loginFormBean.verificarSesion()}">
+                        <h:form id="frmPropietario">
+                            <p:dataTable id="tblPropietario"
+                                         value="#{propietarioFormBean.obtenerPropietario()}" 
+                                         var="p" rows="3" paginator="true" 
+                                         filteredValue="#{propietarioFormBean.propietarioFiltrado}">
+                                
+                                <p:column headerText="DNI" style="width: 65px">
+                                    <p:outputLabel value="#{p.dni}"/>
+                                </p:column>
+                                
+                                <p:column headerText="APELLIDO" filterBy="#{p.apellido}" style="width: 90px">
+                                    <p:outputLabel value="#{p.apellido}"/>
+                                </p:column>
+                                
+                                <p:column headerText="NOMBRES" style="width: 100px">
+                                    <p:outputLabel value="#{p.nombre}"/>
+                                </p:column>
+                                
+                                <p:column headerText="DIRECCION" style="width: 105px">
+                                    <p:outputLabel value="#{p.direccion}"/>
+                                </p:column>
+                                
+                                <p:column headerText="TELEFONO" style="width: 85px">
+                                    <p:outputLabel value="#{p.telefono}"/>
+                                </p:column>
+                                
+                                <p:column headerText="FEC NAC" style="width: 85px">
+                                    <p:outputLabel  value="#{p.fechaNacimiento}">
+                                        <f:convertDateTime pattern="dd-MM-yyyy"/>
+                                    </p:outputLabel>
+                                
+                                </p:column>
+                                
+                                <p:column headerText="Editar" style="width: 38px">
+                                    <p:commandButton icon="ui-icon-pencil"
+                                                     update=":frmModificacionPropietario"
+                                                     oncomplete="PF('modificacionPropietario').show()"
+                                                     actionListener="#{propietarioFormBean.establecerPropietario(p)}"/>
+                                </p:column>
+                            
+                            </p:dataTable>
+                            <br/>
+                            <p:commandButton id="btnCrearPropietario" value="Nuevo Propietario"
+                                             oncomplete="PF('altaPropietario').show()" 
+                                             update=":frmAltaPropietario"
+                                             actionListener="#{propietarioFormBean.limpiarformulario()}"
+                                             />
+                        </h:form>
+                        
+                        <h:form id="frmAltaPropietario">
+                            <p:dialog id="dlgAltaPropietario" 
+                                      resizable="false" 
+                                      modal="true" 
+                                      widgetVar="altaPropietario"
+                                      header="Alta de Propietarios" 
+                                      showEffect="explode" hideEffect="explode">
+                                <h:panelGrid id="pnlAltaPropietario" columns="2" cellpadding="3">
+                                    
+                                    <p:outputLabel for="txtDni" value="DNI:"/>
+                                    <p:inputMask id="txtDni" mask="99.999.999" size="8" maxlength="8" required="true"
+                                                 value="#{propietarioFormBean.propietarioBean.propietario.dni}"/>
+                                    
+                                    <p:outputLabel for="txtApellido" value="APELLIDO:"/>
+                                    <p:inputText id="txtApellido" required="true"
+                                                 value="#{propietarioFormBean.propietarioBean.propietario.apellido}"/>
+                                    
+                                    <p:outputLabel for="txtNombres" value="NOMBRES:"/>
+                                    <p:inputText id="txtNombres" required="true"
+                                                 value="#{propietarioFormBean.propietarioBean.propietario.nombre}"/>
+                                    
+                                    <p:outputLabel for="txtDireccion" value="DIRECCION"/>
+                                    <p:inputTextarea id="txtDireccion" required="true" rows="3"
+                                                     value="#{propietarioFormBean.propietarioBean.propietario.direccion}"/>
+                                    
+                                    <p:outputLabel for="txtFecha" value="FECHA DE NACIMIENTO:"/>
+                                    <p:calendar id="txtFecha" pattern="dd-MM-yyyy" required="true" mask="true"
+                                                size="10" maxlength="10" locale="es" maxdate="#{propietarioFormBean.fechaActual}"
+                                                value="#{propietarioFormBean.propietarioBean.propietario.fechaNacimiento}"/>
+                                    
+                                    <p:outputLabel for="txtTelefono" value="TELEFONO"/>
+                                    <p:inputMask id="txtTelefono" mask="(99) 999 9999999" required="true"
+                                                 size="15" maxlength="15" 
+                                                 value="#{propietarioFormBean.propietarioBean.propietario.telefono}"/>
+                                    
+                                    <h:panelGroup/>
+                                    
+                                    <p:commandButton id="btnNuevoPropietario" value="GRABAR" 
+                                                     update=":grwMensajePropietarios"
+             
+                                                     actionListener="#{propietarioFormBean.visualizarVentanaConfirmaAlta()}" />
+                                                     
+                                </h:panelGrid>
+                            </p:dialog>
+                        </h:form>
+                        
+                        <h:form id="frmConfirmarAltaPropietario">
+                            <p:confirmDialog id="dlgConfirmaAltaPropietario" 
+                                             header="CONFIRMACION DE OPERACION" 
+                                             message="¿Confirma Alta de Propietario?"
+                                             severity="alert" widgetVar="confirmaAltaPropietario">
+                                
+                                <p:commandButton value="SI" update=":frmPropietario"
+                                                 styleClass="ui-confirmdialog-yes" icon="ui-icon-check"
+                                                 actionListener="#{propietarioFormBean.grabarNuevoPropietario()}" 
+                                                 oncomplete="PF('confirmaAltaPropietario').hide();PF('altaPropietario').hide()" />
+                                
+                                <p:commandButton value="NO"
+                                                 styleClass="ui-confirmdialog-no" icon="ui-icon-close"
+                                                 oncomplete="PF('confirmaAltaPropietario').hide()"/>
+                            </p:confirmDialog>
+                        </h:form>
+                        
+                        <h:form id="frmModificacionPropietario">
+                            <p:dialog id="dlgModificacionPropietario" 
+                                      resizable="false" 
+                                      modal="true" 
+                                      widgetVar="modificacionPropietario"
+                                      header="Modificar Propietario">
+                                <h:panelGrid id="pnlModificacionPropietario" columns="2" cellpadding="3">
+                                    <p:outputLabel for="txtDni" value="DNI:" />
+                                    <p:inputMask id="txtDni" mask="99.999.999" size="8" maxlength="8" required="true" disabled="true"
+                                                 value="#{propietarioFormBean.propietarioBean.propietario.dni}" readonly="true"/>
+                                    
+                                    <p:outputLabel for="txtApellido" value="APELLIDO:"/>
+                                    <p:inputText id="txtApellido" required="true"
+                                                 value="#{propietarioFormBean.propietarioBean.propietario.apellido}"/>
+                                    
+                                    <p:outputLabel for="txtNombres" value="NOMBRES:"/>
+                                    <p:inputText id="txtNombres" required="true"
+                                                 value="#{propietarioFormBean.propietarioBean.propietario.nombre}"/>
+                                    
+                                    <p:outputLabel for="txtDireccion" value="DIRECCION"/>
+                                    <p:inputTextarea id="txtDireccion" required="true" rows="3"
+                                                     value="#{propietarioFormBean.propietarioBean.propietario.direccion}"/>
+                                    
+                                    <p:outputLabel for="txtFecha" value="FECHA DE NACIMIENTO:"/>
+                                    <p:calendar id="txtFecha" pattern="dd-MM-yyyy" required="true" mask="true"
+                                                size="10" maxlength="10" locale="es"
+                                                value="#{propietarioFormBean.propietarioBean.propietario.fechaNacimiento}"/>
+                                    
+                                    <p:outputLabel for="txtTelefono" value="TELEFONO"/>
+                                    <p:inputMask id="txtTelefono" mask="(99) 999 9999999" required="true"
+                                                 size="15" maxlength="15" 
+                                                 value="#{propietarioFormBean.propietarioBean.propietario.telefono}"/>
+                                    <h:panelGroup/>
+                                    <p:commandButton id="btnActualizarPropietario" value="GRABAR" 
+                                                     update=":grwMensajePropietarios"
+                                                     actionListener="#{propietarioFormBean.visualizarVentanaConfirmaModificacion()}"/>
+                                </h:panelGrid>
+                            </p:dialog>
+                        </h:form>
+                        
+                        <h:form id="frmConfirmarModificacionPropietario">
+                            <p:confirmDialog id="dlgConfirmaModificacionPropietario" 
+                                             header="CONFIRMACION DE OPERACION" 
+                                             message="¿Confirma Modificacion de Propietario?"
+                                             severity="alert" widgetVar="confirmaModificacionPropietario">
+                                
+                                <p:commandButton value="SI" update=":frmPropietario"
+                                                 styleClass="ui-confirmdialog-yes" icon="ui-icon-check"
+                                                 actionListener="#{propietarioFormBean.actualizarPropietario()}"/>
+                                <p:commandButton value="NO"
+                                                 styleClass="ui-confirmdialog-no" icon="ui-icon-close"
+                                                 oncomplete="PF('confirmaModificacionPropietario').hide()"/>
+                            </p:confirmDialog>
+                        </h:form>
+                        
+                    </p:panel>
+                </div>
+            </ui:define>
+
+        </ui:composition>
+
+    </body>
+</html>

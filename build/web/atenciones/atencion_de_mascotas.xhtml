@@ -1,0 +1,207 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <body>
+
+        <ui:composition template="./../templates/template.xhtml">
+
+            <ui:define name="content">
+                <div id="tooplate_main">
+                    <p:growl id="grwMensajeAtencion" showDetail="true" widgetVar="mensajesAtenciones"/>
+
+                    <p:panel rendered="#{loginFormBean.verificarSesion()}">
+                        <h:form id="frmTabla">
+                            <p:dataTable id="tblAtenciones" var="at" paginator="true"
+                                         rows="5"
+                                         value="#{atencionFormBean.atenciones}">
+                                <p:column headerText="Atencion ID">
+                                    <p:outputLabel value="#{at.atencionID}"/>
+                                </p:column>
+
+                                <p:column headerText="Fecha Atencion">
+                                    <p:outputLabel value="#{at.fechaAtencion}">
+                                        <f:convertDateTime pattern="dd-MM-yyyy"/>
+                                    </p:outputLabel>
+                                </p:column>
+
+                                <p:column headerText="Paciente">
+                                    <p:outputLabel value="#{at.paciente.nombre}"/>
+                                </p:column>
+
+                                <p:column headerText="Diagnostico">
+                                    <p:outputLabel value="#{at.diagnostico}"/>
+                                </p:column>
+
+                                <p:column headerText="Edicion" style="width: 15%; text-align: center">
+                                    <p:commandButton icon="ui-icon-pencil"
+                                             update=":frmModificacionAtencion"
+                                             oncomplete="PF('modificacionAtencion').show()"
+                                             actionListener="#{atencionFormBean.establecerAtencion(at)}">
+                                    </p:commandButton>   
+
+                                    <p:commandButton icon="ui-icon-trash"
+                                                     actionListener="#{atencionFormBean.establecerAtencion(at)}"
+                                                     oncomplete="PF('confirmaEliminarAtencion').show()"/>
+                                </p:column>
+                            </p:dataTable>
+
+                            <br/>
+                            <p:commandButton id="crearAtencion" value="Nueva Atencion"
+                                             oncomplete="PF('altaAtencion').show()"
+                                             update=":frmAltaAtencion"
+                                             actionListener="#{atencionFormBean.limpiarFormulario()}"/>
+
+                        </h:form>
+
+                        <h:form id="frmAltaAtencion">
+                            <p:dialog id="dlgAltaAtencion" 
+                                      resizable="false" 
+                                      modal="true" 
+                                      widgetVar="altaAtencion"
+                                      header="Alta de Atencion" 
+                                      showEffect="explode" hideEffect="explode">
+                                <h:panelGrid id="pnlAltaAtencion" columns="2" cellpadding="3">
+
+                                    <p:outputLabel for="usuario" value="Usuario: "/>
+                                    <p:inputText id="usuario" disabled="true" 
+                                                 value="#{atencionFormBean.atencionBean.atencion.usuario.nombreUsuario}"/>
+
+                                    <p:outputLabel for="atencionID" value="ID Atencion: "/>
+                                    <p:inputText id="atencionID" required="true"
+                                                 value="#{atencionFormBean.atencionBean.atencion.atencionID}"/>
+
+                                    <p:outputLabel for="paciente" value="Paciente: "/>
+                                    <p:selectOneMenu id="paciente" converter="pacienteConverter" required="true"
+                                                     value="#{atencionFormBean.atencionBean.atencion.paciente}">
+                                        <f:selectItem itemLabel="Seleccione Paciente" itemValue=""/>
+                                        <f:selectItems value="#{atencionFormBean.obtenerPacientes()}"
+                                                       var="pac" itemLabel="#{pac.nombre}" itemValue="#{pac}"/>
+                                    </p:selectOneMenu>
+
+                                    <p:outputLabel for="fecha" value="Fecha de Atencion: "/>
+                                    <p:calendar id="fecha" pattern="dd-MM-yyyy" required="true"
+                                                mask="true" maxdate="#{atencionFormBean.fechaMax}"
+                                                value="#{atencionFormBean.atencionBean.atencion.fechaAtencion}">
+                                        <f:convertDateTime pattern="dd-MM-yyyy"/>
+                                    </p:calendar>
+
+                                    <p:outputLabel for="diagnostico" value="Diagnostico: "/>
+                                    <p:inputTextarea id="diagnostico" rows="3"
+                                                     value="#{atencionFormBean.atencionBean.atencion.diagnostico}"/>
+
+                                    <p:outputLabel for="observaciones" value="Observaciones: "/>
+                                    <p:inputTextarea id="observaciones" rows="3"
+                                                     value="#{atencionFormBean.atencionBean.atencion.observaciones}"/>
+                                    <h:panelGroup/>
+
+                                    <p:commandButton id="btnNuevoPropietario" value="GRABAR" 
+                                                     update=":grwMensajeAtencion"
+                                                     actionListener="#{atencionFormBean.visualizarVentanaConfirmaAlta()}" />                                                     
+                                </h:panelGrid>
+                            </p:dialog>                            
+                        </h:form>
+
+                        <h:form id="frmConfirmarAltaAtencion">
+                            <p:confirmDialog id="dlgConfirmaAltaAtencion" 
+                                             header="CONFIRMACION DE OPERACION" 
+                                             message="¿Confirma Alta de Atencion?"
+                                             severity="alert" widgetVar="confirmaAltaAtencion">
+
+                                <p:commandButton value="SI" update=":frmTabla"
+                                                 styleClass="ui-confirmdialog-yes" icon="ui-icon-check"
+                                                 actionListener="#{atencionFormBean.grabarNuevaAtencion()}" 
+                                                 oncomplete="PF('confirmaAltaAtencion').hide();PF('altaAtencion').hide()"/>
+
+                                <p:commandButton value="NO"
+                                                 styleClass="ui-confirmdialog-no" icon="ui-icon-close"
+                                                 oncomplete="PF('confirmaAltaAtencion').hide()"/>
+                            </p:confirmDialog>
+                        </h:form>
+
+                        <h:form id="frmConfirmarEliminarAtencion">
+                            <p:confirmDialog id="dlgConfirmaEliminarAtencion" 
+                                             header="CONFIRMACION DE OPERACION" 
+                                             message="¿Confirma la eliminacion de Atencion ?"
+                                             severity="alert" widgetVar="confirmaEliminarAtencion">
+
+                                <p:commandButton value="SI" update=":frmTabla"
+                                                 styleClass="ui-confirmdialog-yes" icon="ui-icon-check"
+                                                 actionListener="#{atencionFormBean.eliminarAtencion()}" 
+                                                 oncomplete="PF('confirmaEliminarAtencion').hide()"/>
+
+                                <p:commandButton value="NO"
+                                                 styleClass="ui-confirmdialog-no" icon="ui-icon-close"
+                                                 oncomplete="PF('confirmaEliminarAtencion').hide()"/>
+                            </p:confirmDialog>
+                        </h:form>
+
+                        <h:form id="frmModificacionAtencion">
+                            <p:dialog id="dlgModificacionAtencion" 
+                                      resizable="false" 
+                                      modal="true" 
+                                      widgetVar="modificacionAtencion"
+                                      header="Modificar Atencion">
+                                <h:panelGrid id="pnlModificacionAtencion" columns="2" cellpadding="2">
+                                    <p:outputLabel for="txtId" value="ID:" />
+                                    <p:inputText id="txtId" size="4" maxlength="4" disabled="true"
+                                                 value="#{atencionFormBean.atencionBean.atencion.atencionID}"/>
+                                    
+                                    <p:outputLabel for="cmdPaciente" value="PACIENTE:"/>
+                                    <p:inputText id="cmdPaciente" disabled="true" 
+                                                 value="#{atencionFormBean.atencionBean.atencion.paciente.nombre}"/>
+                                    
+                                    <p:outputLabel for="txtFecha" value="FECHA ATENCION:"/>
+                                    <p:inputText id="txtFecha" disabled="true"
+                                                 value="#{atencionFormBean.atencionBean.atencion.fechaAtencion}">
+                                        <f:convertDateTime pattern="dd-MM-yyyy"/>
+                                    </p:inputText>
+                                    
+                                    <p:outputLabel for="txtUsuario" value="USUARIO:" />
+                                    <p:inputText id="txtUsuario" disabled="true"
+                                                 value="#{atencionFormBean.atencionBean.atencion.usuario.nombreUsuario}"/>
+                                    
+                                    <p:outputLabel for="txtDiagnostico" value="DIAGNOSTICO:" />
+                                    <p:inputTextarea id="txtDiagnostico"  required="true" maxlength="20"
+                                                     value="#{atencionFormBean.atencionBean.atencion.diagnostico}"/>
+                                    
+                                    <p:outputLabel for="txtObservacion" value="OBSERVACION:" />
+                                    <p:inputTextarea id="txtObservacion"  required="true" 
+                                                     value="#{atencionFormBean.atencionBean.atencion.observaciones}"/>
+                                    
+                                    
+                                    <p:commandButton id="btnActualizarAtencion" value="GRABAR" 
+                                                     update=":grwMensajeAtencion"
+                                                     actionListener="#{atencionFormBean.visualizarVentanaConfirmaModificacion()}"/>
+                                </h:panelGrid>
+                            </p:dialog>
+                        </h:form>
+                     
+                         <h:form id="frmConfirmarModificacionAtencion">
+                            <p:confirmDialog id="dlgConfirmaModificacionAtencion" 
+                                             header="CONFIRMACION DE OPERACION" 
+                                             message="¿Confirma Modificacion de Atencion?"
+                                             severity="alert" widgetVar="confirmaModificacionAtencion">
+                                
+                                <p:commandButton value="SI" update=":frmTabla"
+                                                 styleClass="ui-confirmdialog-yes" icon="ui-icon-check"
+                                                 actionListener="#{atencionFormBean.actualizarAtencion}"/>
+                                <p:commandButton value="NO"
+                                                 styleClass="ui-confirmdialog-no" icon="ui-icon-close"
+                                                 oncomplete="PF('confirmaModificacionAtencion').hide()"/>
+                            </p:confirmDialog>
+                        </h:form>                        
+                        
+                    </p:panel>
+                </div>
+
+            </ui:define>
+
+        </ui:composition>
+
+    </body>
+</html>
