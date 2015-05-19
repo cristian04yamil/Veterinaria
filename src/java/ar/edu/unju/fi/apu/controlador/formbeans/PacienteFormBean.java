@@ -142,6 +142,7 @@ public class PacienteFormBean implements Serializable{
         {
             
         }
+        //LINEA DE PRUEBA PARA GITHUB
         //guardo el paciente
         pacienteDAO.modificarPaciente(this.pacienteBean.getPaciente());
     }    
