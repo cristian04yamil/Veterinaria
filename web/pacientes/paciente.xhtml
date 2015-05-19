@@ -15,7 +15,7 @@
                 <div id="tooplate_main">
                     <p:growl id="grwMensajePaciente" showDetail="true" widgetVar="mensajePaciente"/>
                     <p:panel id="pnlPaciente" rendered="#{loginFormBean.verificarSesion()}">
-
+<!--                    FORMULARIO DE PACIENTE                      -->
                         <h:form id="frmPaciente" enctype="multipart/form-data">
                             <p:dataTable id="tblPaciente"
                                          value="#{pacienteFormBean.obtenerPacientes()}"
@@ -67,6 +67,8 @@
                                              oncomplete="PF('wvDialogPacienteAlta').show()" 
                                              update=":frmModalAgregar:dialogPacienteAlta"/>
                         </h:form>
+
+<!--                    FORMULARIO DE ALTA DE PACIENTE                      -->
 
                         <h:form id="frmModalAgregar" enctype="multipart/form-data">
                             <p:dialog id="dialogPacienteAlta" 
@@ -158,7 +160,7 @@
                             </p:confirmDialog>
                         </h:form>                
 
-
+<!--                    FORMULARIO DE MODIFICACION DE PACIENTE                      -->
 
                         <h:form id="frmModalModificar"  enctype="multipart/form-data">
                             <p:dialog id="dialogPacienteModificar" 
@@ -236,6 +238,8 @@
                                 </h:panelGrid>
                             </p:dialog>
 
+<!--                    DIALO DE MODIFICACION Y ELEIMINACION  DE PACIENTE                      -->
+                            
                             <p:confirmDialog id="dlgConfirmaModificarPaciente" 
                                              header="CONFIRMACION DE OPERACION" 
                                              message="¿Confirma Modificacion de Paciente?"
