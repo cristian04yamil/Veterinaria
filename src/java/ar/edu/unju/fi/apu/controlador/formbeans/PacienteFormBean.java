@@ -22,7 +22,7 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.SessionScoped;
 
-import javax.faces.bean.ViewScoped;
+
 import javax.faces.context.FacesContext;
 import javax.faces.event.PhaseId;
 import org.primefaces.context.RequestContext;
@@ -143,6 +143,7 @@ public class PacienteFormBean implements Serializable{
             
         }
         //LINEA DE PRUEBA PARA GITHUB
+        //otra liean de prueba
         //guardo el paciente
         pacienteDAO.modificarPaciente(this.pacienteBean.getPaciente());
     }    
